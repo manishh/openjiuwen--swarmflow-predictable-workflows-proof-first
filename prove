@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Usage: ./prove [--repeat N]
+# Builds a fresh venv, installs the pinned JiuwenSwarm, then runs scenarios A-D against
+# a fresh, isolated JiuwenSwarm home per repeat. Exits 0 only if every check passes in every repeat.
+# Needs OPENAI_API_KEY in the environment (or in a git-ignored .env). Nothing is written to disk.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+if [[ -f .env ]]; then
+  while IFS='=' read -r k v; do
+    case "$k" in OPENAI_API_KEY|MODEL_NAME) [[ -n "$v" && -z "${!k:-}" ]] && export "$k=$v" ;; esac
+  done < <(grep -E '^(OPENAI_API_KEY|MODEL_NAME)=' .env || true)
+fi
+if [[ -z "${OPENAI_API_KEY:-}" ]]; then
+  echo "OPENAI_API_KEY is not set (export it or put it in .env)" >&2
+  exit 2
+else
+  echo "Using OPENAI_API_KEY=${OPENAI_API_KEY:0:8}...${OPENAI_API_KEY: -6}" >&2  
+fi
+
+PY="${PYTHON:-python3}"
+"$PY" -c 'import sys; assert (3,11) <= sys.version_info[:2] <= (3,13), "Python 3.11-3.13 required"'
+if [[ ! -x .venv/bin/python ]]; then
+  "$PY" -m venv .venv
+fi
+.venv/bin/python -m pip install --quiet --disable-pip-version-check -r requirements.txt
+
+export PROOF_OUT="${PROOF_OUT:-$PWD/proof-out}"
+exec .venv/bin/python harness/run_proof.py "$@"

@@ -1,0 +1,7 @@
+.env
+.venv/
+venv/
+proof-out/
+logs/
+__pycache__/
+*.pyc

@@ -1,0 +1,8 @@
+# JiuwenSwarm is published on PyPI as `workswarm` (the `jiuwenswarm` PyPI name stopped at 0.2.3).
+# It installs the jiuwenswarm-* commands and pulls in the SwarmFlow engine (openjiuwen).
+workswarm==0.2.7
+openjiuwen==0.1.19
+# Used by the harness (already dependencies of workswarm; pinned here explicitly)
+websockets==15.0.1
+psutil==7.2.2
+ruamel.yaml==0.19.1
